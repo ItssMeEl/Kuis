@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kuis Interaktif: Hak dan Kewajiban Warga Negara</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  #quiz-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 600px;
+    padding: 30px 40px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-weight: 600;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    text-align: center;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+
+  #question-number {
+    font-weight: 500;
+    font-size: 1rem;
+    margin-bottom: 30px;
+    text-align: center;
+    letter-spacing: 1.2px;
+    color: #ddd;
+  }
+
+  #question {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: 25px;
+    line-height: 1.4;
+  }
+
+  .options {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .option {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: background 0.3s ease, transform 0.2s ease;
+    user-select: none;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+
+  .option:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+  }
+
+  .option.correct {
+    background: #39ca72;
+    box-shadow: 0 5px 15px #39ca72aa;
+    cursor: default;
+  }
+
+  .option.wrong {
+    background: #e94b4b;
+    box-shadow: 0 5px 15px #e94b4baa;
+    cursor: default;
+  }
+
+  #next-btn {
+    background: #fff;
+    color: #764ba2;
+    font-weight: 600;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: block;
+    margin: 30px auto 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    box-shadow: 0 8px 20px rgba(255,255,255,0.45);
+    user-select: none;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+  }
+
+  #next-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #score-container {
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.3rem;
+  }
+
+  #score-container span {
+    font-size: 3rem;
+    display: block;
+    margin-top: 10px;
+    color: #39ca72;
+  }
+
+  /* fade animation */
+  .fade-out {
+    animation: fadeOut 0.4s forwards;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.4s forwards;
+  }
+
+  @keyframes fadeOut {
+    from {opacity: 1; transform: translateY(0);}
+    to {opacity: 0; transform: translateY(-20px);}
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+</style>
+</head>
+<body>
+<div id="quiz-container" aria-live="polite">
+  <h1>Kuis: Hak dan Kewajiban Warga Negara</h1>
+  <div id="question-number"></div>
+  <div id="question"></div>
+  <ul id="options" class="options"></ul>
+  <button id="next-btn" aria-label="Lanjutkan ke soal berikutnya">Selanjutnya</button>
+  <div id="score-container" style="display:none;"></div>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "Apa pengertian hak warga negara?",
+      options: [
+        "Kewajiban yang harus dipenuhi warga negara",
+        "Keistimewaan atau kebebasan yang dimiliki warga negara",
+        "Sanksi terhadap warga negara yang tidak taat",
+        "Tugas pemerintah kepada warga negara"
+      ],
+      correct: 1
+    },
+    {
+      question: "Apa pengertian kewajiban warga negara?",
+      options: [
+        "Hak yang bisa diperoleh warga negara",
+        "Tugas atau tanggung jawab yang harus dilakukan warga negara",
+        "Hukuman bagi warga negara",
+        "Kebebasan tanpa batas"
+      ],
+      correct: 1
+    },
+    {
+      question: "Contoh hak warga negara adalah:",
+      options: [
+        "Mendapatkan pendidikan",
+        "Mematuhi peraturan",
+        "Membayar pajak",
+        "Mengikuti pemilu"
+      ],
+      correct: 0
+    },
+    {
+      question: "Contoh kewajiban warga negara adalah:",
+      options: [
+        "Mematuhi hukum dan aturan",
+        "Mendapatkan pelayanan kesehatan",
+        "Menerima bantuan sosial",
+        "Berpartisipasi dalam demonstrasi"
+      ],
+      correct: 0
+    },
+    {
+      question: "Mengapa penting menjalankan hak dan kewajiban secara seimbang?",
+      options: [
+        "Agar masyarakat menjadi kacau",
+        "Supaya warga merasa bebas tanpa batas",
+        "Agar tercipta keharmonisan dan kesejahteraan dalam masyarakat",
+        "Agar bisa mengabaikan aturan"
+      ],
+      correct: 2
+    },
+    {
+      question: "Apa dampak positif jika hak dan kewajiban dijalankan dengan baik?",
+      options: [
+        "Terciptanya ketertiban dan keadilan sosial",
+        "Banyak orang melanggar hukum",
+        "Masyarakat menjadi saling curiga",
+        "Pemerintah menjadi otoriter"
+      ],
+      correct: 0
+    },
+    {
+      question: "Apa akibat jika kewajiban warga negara diabaikan?",
+      options: [
+        "Pemerintahan menjadi kuat",
+        "Terjadi ketidakadilan dan kekacauan sosial",
+        "Hak warga meningkat",
+        "Masyarakat menjadi lebih makmur"
+      ],
+      correct: 1
+    },
+    {
+      question: "Dalam pemilu, hak memilih memberikan kesempatan kepada warga negara untuk:",
+      options: [
+        "Mengabaikan aturan pemerintah",
+        "Berpartisipasi memilih pemimpin dan menentukan masa depan negara",
+        "Menghindari kewajiban membayar pajak",
+        "Meminta bantuan sosial"
+      ],
+      correct: 1
+    },
+    {
+      question: "Melaksanakan kewajiban membayar pajak membantu:",
+      options: [
+        "Menambah beban pemerintah",
+        "Membiayai pembangunan dan pelayanan publik",
+        "Mengurangi hak warga negara",
+        "Meningkatkan ketidakadilan"
+      ],
+      correct: 1
+    },
+    {
+      question: "Apa konsekuensi sosial yang mungkin terjadi jika hak warga negara tidak dihormati?",
+      options: [
+        "Masyarakat menjadi lebih harmonis",
+        "Muncul ketidakpuasan, konflik, dan ketidakstabilan sosial",
+        "Kewajiban warga menjadi berkurang",
+        "Pemerintah menjadi lebih dihormati"
+      ],
+      correct: 1
+    }
+  ];
+
+  const quizContainer = document.getElementById('quiz-container');
+  const questionNumberEl = document.getElementById('question-number');
+  const questionEl = document.getElementById('question');
+  const optionsEl = document.getElementById('options');
+  const nextBtn = document.getElementById('next-btn');
+  const scoreContainer = document.getElementById('score-container');
+
+  let currentQuestion = 0;
+  let score = 0;
+  let answered = false;
+
+  function showQuestion(index) {
+    answered = false;
+    nextBtn.classList.remove('show');
+
+    // Animate fade out current content
+    quizContainer.classList.add('fade-out');
+
+    setTimeout(() => {
+      // Set question number and text
+      questionNumberEl.textContent = `Soal ${index + 1} dari ${quizData.length}`;
+      questionEl.textContent = quizData[index].question;
+
+      // Clear previous options
+      optionsEl.innerHTML = '';
+
+      // Render options
+      quizData[index].options.forEach((option, i) => {
+        const li = document.createElement('li');
+        li.classList.add('option');
+        li.setAttribute('tabindex', '0');
+        li.setAttribute('role', 'button');
+        li.setAttribute('aria-pressed', 'false');
+        li.textContent = option;
+        li.addEventListener('click', () => selectOption(i, li));
+        li.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectOption(i, li);
+          }
+        });
+        optionsEl.appendChild(li);
+      });
+
+      // Remove fade out and add fade in
+      quizContainer.classList.remove('fade-out');
+      quizContainer.classList.add('fade-in');
+
+    }, 400);
+
+    // Remove fade-in class after animation
+    setTimeout(() => {
+      quizContainer.classList.remove('fade-in');
+    }, 800);
+  }
+
+  function selectOption(selectedIndex, element) {
+    if (answered) return;
+    answered = true;
+
+    const question = quizData[currentQuestion];
+    const correctIndex = question.correct;
+
+    const optionElements = optionsEl.querySelectorAll('.option');
+    optionElements.forEach((optEl, i) => {
+      optEl.setAttribute('aria-pressed', 'false');
+      optEl.style.pointerEvents = 'none'; // Disable further clicks
+
+      if(i === correctIndex){
+        optEl.classList.add('correct');
+        optEl.setAttribute('aria-pressed', 'true');
+      }
+    });
+
+    if(selectedIndex === correctIndex){
+      score++;
+      element.classList.add('correct');
+    } else {
+      element.classList.add('wrong');
+      element.setAttribute('aria-pressed', 'true');
+    }
+
+    nextBtn.classList.add('show');
+    nextBtn.focus();
+  }
+
+  nextBtn.addEventListener('click', () => {
+    currentQuestion++;
+    if(currentQuestion < quizData.length){
+      showQuestion(currentQuestion);
+    } else {
+      showScore();
+    }
+  });
+
+  function showScore(){
+    quizContainer.innerHTML = `
+      <h1>Hasil Kuis Anda</h1>
+      <div id="score-container">
+        Skor Anda: <span>${score} / ${quizData.length}</span>
+      </div>
+      <p style="margin-top: 20px; font-weight: 500; font-size: 1rem; line-height: 1.4;">
+        Terima kasih sudah mengikuti kuis! Semoga Anda makin memahami pentingnya hak dan kewajiban sebagai warga negara.
+      </p>
+      <button id="restart-btn" style="
+        background: #fff;
+        color: #764ba2;
+        font-weight: 600;
+        border: none;
+        border-radius: 30px;
+        padding: 12px 30px;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 30px;
+        text-transform: uppercase;
+        letter-spacing: 1.3px;
+        box-shadow: 0 8px 20px rgba(255,255,255,0.45);
+      ">Mulai Lagi</button>
+      `;
+
+    const restartBtn = document.getElementById('restart-btn');
+    restartBtn.focus();
+    restartBtn.addEventListener('click', () => {
+      currentQuestion = 0;
+      score = 0;
+      quizContainer.innerHTML = `
+        <h1>Kuis: Hak dan Kewajiban Warga Negara</h1>
+        <div id="question-number"></div>
+        <div id="question"></div>
+        <ul id="options" class="options"></ul>
+        <button id="next-btn" aria-label="Lanjutkan ke soal berikutnya">Selanjutnya</button>
+      `;
+      attachListeners();
+      showQuestion(currentQuestion);
+    });
+  }
+
+  function attachListeners() {
+    const newNextBtn = document.getElementById('next-btn');
+    newNextBtn.addEventListener('click', () => {
+      currentQuestion++;
+      if(currentQuestion < quizData.length){
+        showQuestion(currentQuestion);
+      } else {
+        showScore();
+      }
+    });
+  }
+
+  // Initialize quiz
+  showQuestion(currentQuestion);
+</script>
+</body>
+</html>
+
